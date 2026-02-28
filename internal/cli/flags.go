@@ -3,6 +3,7 @@ package cli
 // GlobalFlags holds flags available to all subcommands.
 type GlobalFlags struct {
 	Config  string `long:"config" description:"Path to config file" default:""`
+	DBPath  string `long:"db-path" description:"Override database file path"`
 	JSON    bool   `long:"json" description:"Output in JSON format"`
 	Verbose bool   `long:"verbose" description:"Enable verbose output"`
 	Version bool   `long:"version" description:"Show version and exit"`
@@ -34,7 +35,7 @@ type SearchCommand struct {
 // OpenCommand — print the full stored content of a specific event.
 type OpenCommand struct {
 	ID     string `long:"id" description:"Event ID (required)"`
-	Format string `long:"format" description:"Output format: raw | md | json" default:"md"`
+	Format string `long:"format" description:"Output format: full | url | title | body | metadata" default:"full"`
 
 	globals *GlobalFlags
 	version string
