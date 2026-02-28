@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/sha256"
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"net/url"
 	"os"
@@ -120,18 +121,31 @@ func (c *AddCommand) executeWithStore(store *storage.SQLiteStore) error {
 		return fmt.Errorf("storing event: %w", err)
 	}
 
-	// Print confirmation
+	// Output confirmation
+	if c.globals.JSON {
+		out := map[string]interface{}{
+			"id":    event.ID,
+			"url":   event.URL,
+			"title": event.Title,
+			"ts":    event.Timestamp.Format(time.RFC3339),
+			"body":  body != "",
+			"embed": false,
+		}
+		enc := json.NewEncoder(os.Stdout)
+		enc.SetIndent("", "  ")
+		return enc.Encode(out)
+	}
+
 	hasBody := "no"
 	if body != "" {
 		hasBody = "yes"
 	}
-	hasEmbed := "no"
 
 	fmt.Printf("Added event %s (%s)\n", event.ID, event.Timestamp.Format(time.RFC3339))
 	fmt.Printf("  URL: %s\n", event.URL)
 	fmt.Printf("  Title: %s\n", event.Title)
 	fmt.Printf("  Body: %s\n", hasBody)
-	fmt.Printf("  Embedding: %s\n", hasEmbed)
+	fmt.Printf("  Embedding: %s\n", "no")
 
 	return nil
 }

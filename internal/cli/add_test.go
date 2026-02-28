@@ -1,9 +1,11 @@
 package cli
 
 import (
+	"bytes"
 	"context"
 	"crypto/sha256"
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -271,4 +273,41 @@ func TestAddCommand_ExtractsDomain(t *testing.T) {
 	require.NoError(t, err)
 	require.Len(t, events, 1)
 	assert.Equal(t, "docs.github.com", events[0].Domain)
+}
+
+func TestAddCommand_JSONOutput(t *testing.T) {
+	store, cleanup := testStore(t)
+	defer cleanup()
+
+	// Capture stdout
+	old := os.Stdout
+	r, w, _ := os.Pipe()
+	os.Stdout = w
+
+	cmd := &AddCommand{
+		URL:         "https://example.com/json-test",
+		Title:       "JSON Output Test",
+		BrowserName: "manual",
+		globals:     &GlobalFlags{JSON: true},
+	}
+
+	err := cmd.executeWithStore(store)
+
+	w.Close()
+	os.Stdout = old
+
+	require.NoError(t, err)
+
+	var buf bytes.Buffer
+	buf.ReadFrom(r)
+
+	var result map[string]interface{}
+	err = json.Unmarshal(buf.Bytes(), &result)
+	require.NoError(t, err, "output should be valid JSON")
+
+	assert.Equal(t, "https://example.com/json-test", result["url"])
+	assert.Equal(t, "JSON Output Test", result["title"])
+	assert.Contains(t, result["id"], "CHR-")
+	assert.Equal(t, false, result["body"])
+	assert.Equal(t, false, result["embed"])
 }
