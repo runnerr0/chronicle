@@ -4,7 +4,8 @@ go 1.22.0
 
 require (
 	github.com/jessevdk/go-flags v1.6.1
-	github.com/stretchr/testify v1.11.1
+	github.com/mattn/go-sqlite3 v1.14.24
+	github.com/stretchr/testify v1.9.0
 )
 
 require (
