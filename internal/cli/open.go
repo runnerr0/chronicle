@@ -71,7 +71,7 @@ func (c *OpenCommand) Execute(args []string) error {
 		fmt.Println(event.URL)
 	case "title":
 		fmt.Println(event.Title)
-	case "body":
+	case "body", "raw":
 		if bodyText == "" {
 			fmt.Println("No content captured")
 		} else {
@@ -79,6 +79,10 @@ func (c *OpenCommand) Execute(args []string) error {
 		}
 	case "metadata":
 		return c.outputMetadata(event)
+	case "json":
+		return c.outputJSON(event, bodyText)
+	case "md":
+		c.outputMarkdown(event, bodyText)
 	default: // "full"
 		c.outputFull(event, bodyText)
 	}
@@ -99,6 +103,25 @@ func (c *OpenCommand) outputFull(event *storage.Event, body string) {
 	if body == "" {
 		fmt.Println("No content captured")
 	} else {
+		fmt.Println(body)
+	}
+}
+
+func (c *OpenCommand) outputMarkdown(event *storage.Event, body string) {
+	fmt.Println("---")
+	fmt.Printf("id: %s\n", event.ID)
+	fmt.Printf("title: %s\n", event.Title)
+	fmt.Printf("url: %s\n", event.URL)
+	fmt.Printf("domain: %s\n", event.Domain)
+	fmt.Printf("captured: %s\n", event.Timestamp.Format("2006-01-02T15:04:05Z"))
+	fmt.Printf("source: %s\n", event.Source)
+	fmt.Printf("browser: %s\n", event.Browser)
+	fmt.Println("---")
+	if body == "" {
+		fmt.Println()
+		fmt.Println("No content captured")
+	} else {
+		fmt.Println()
 		fmt.Println(body)
 	}
 }

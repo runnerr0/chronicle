@@ -35,7 +35,7 @@ type SearchCommand struct {
 // OpenCommand — print the full stored content of a specific event.
 type OpenCommand struct {
 	ID     string `long:"id" description:"Event ID (required)"`
-	Format string `long:"format" description:"Output format: full | url | title | body | metadata" default:"full"`
+	Format string `long:"format" description:"Output format: full | md | raw | url | title | body | metadata | json" default:"full"`
 
 	globals *GlobalFlags
 	version string

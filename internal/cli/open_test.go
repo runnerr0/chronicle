@@ -155,6 +155,48 @@ func TestOpenJSONOutput(t *testing.T) {
 	assert.Equal(t, "This is the page body content for testing.", result["body"])
 }
 
+func TestOpenFormatRaw(t *testing.T) {
+	dbPath, eventID := setupOpenTestDB(t)
+
+	output, err := captureOpenOutput(t, []string{"open", "--id", eventID, "--format", "raw", "--db-path", dbPath})
+	require.NoError(t, err)
+
+	trimmed := strings.TrimSpace(output)
+	assert.Equal(t, "This is the page body content for testing.", trimmed)
+}
+
+func TestOpenFormatMarkdown(t *testing.T) {
+	dbPath, eventID := setupOpenTestDB(t)
+
+	output, err := captureOpenOutput(t, []string{"open", "--id", eventID, "--format", "md", "--db-path", dbPath})
+	require.NoError(t, err)
+
+	// YAML frontmatter
+	assert.True(t, strings.HasPrefix(output, "---\n"), "md format should start with YAML frontmatter")
+	assert.Contains(t, output, "id: "+eventID)
+	assert.Contains(t, output, "title: LanceDB Getting Started")
+	assert.Contains(t, output, "url: https://lancedb.github.io/lancedb/basic/")
+	assert.Contains(t, output, "domain: lancedb.github.io")
+	assert.Contains(t, output, "source: extension")
+	assert.Contains(t, output, "browser: chrome")
+	// Body after frontmatter
+	assert.Contains(t, output, "This is the page body content for testing.")
+}
+
+func TestOpenFormatJSON(t *testing.T) {
+	dbPath, eventID := setupOpenTestDB(t)
+
+	output, err := captureOpenOutput(t, []string{"open", "--id", eventID, "--format", "json", "--db-path", dbPath})
+	require.NoError(t, err)
+
+	var result map[string]interface{}
+	require.NoError(t, json.Unmarshal([]byte(output), &result))
+
+	assert.Equal(t, eventID, result["id"])
+	assert.Equal(t, "LanceDB Getting Started", result["title"])
+	assert.Equal(t, "This is the page body content for testing.", result["body"])
+}
+
 func TestOpenMissingID(t *testing.T) {
 	err := RunWithArgs("test", []string{"open"})
 	require.Error(t, err)
