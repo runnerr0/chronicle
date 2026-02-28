@@ -20,6 +20,7 @@ type Store interface {
 	SearchEvents(ctx context.Context, query SearchQuery) ([]Event, error)
 	DeleteEvent(ctx context.Context, id string) error
 	GetContent(ctx context.Context, eventID string) (*Content, error)
+	CountExpired(ctx context.Context, olderThan time.Time) (int64, error)
 	PruneExpired(ctx context.Context, olderThan time.Time) (int64, error)
 	PurgeAll(ctx context.Context) error
 	GetStats(ctx context.Context) (*Stats, error)
@@ -524,6 +525,17 @@ func (s *SQLiteStore) GetContent(ctx context.Context, eventID string) (*Content,
 		return nil, fmt.Errorf("get content: %w", err)
 	}
 	return &c, nil
+}
+
+// CountExpired returns the number of events with timestamps before olderThan.
+func (s *SQLiteStore) CountExpired(ctx context.Context, olderThan time.Time) (int64, error) {
+	tsFormatted := olderThan.UTC().Format(time.RFC3339)
+	var count int64
+	err := s.db.QueryRowContext(ctx, "SELECT COUNT(*) FROM events WHERE ts < ?", tsFormatted).Scan(&count)
+	if err != nil {
+		return 0, fmt.Errorf("count expired: %w", err)
+	}
+	return count, nil
 }
 
 // PruneExpired deletes events with timestamps before olderThan.
