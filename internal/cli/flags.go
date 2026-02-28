@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"database/sql"
 	"io"
 
 	"github.com/runnerr0/chronicle/internal/storage"
@@ -93,4 +94,5 @@ type PurgeCommand struct {
 
 	globals *GlobalFlags
 	version string
+	db      *sql.DB // injectable for testing; nil means open default DB
 }
