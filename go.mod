@@ -4,8 +4,12 @@ go 1.22.0
 
 require (
 	github.com/jessevdk/go-flags v1.6.1
+<<<<<<< HEAD
 	github.com/mattn/go-sqlite3 v1.14.24
 	github.com/stretchr/testify v1.9.0
+=======
+	github.com/stretchr/testify v1.11.1
+>>>>>>> feature/P0-5-cli-skeleton
 )
 
 require (
