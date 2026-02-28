@@ -3,14 +3,11 @@ package cli
 import (
 	"context"
 	"crypto/sha256"
-	"database/sql"
 	"encoding/json"
 	"fmt"
 	"net/url"
 	"os"
 	"time"
-
-	_ "github.com/mattn/go-sqlite3"
 
 	"github.com/runnerr0/chronicle/internal/storage"
 )
@@ -24,7 +21,7 @@ func (c *AddCommand) Execute(args []string) error {
 		return fmt.Errorf("--title is required for add command")
 	}
 
-	store, db, err := c.openStore()
+	store, db, err := openDefaultStore()
 	if err != nil {
 		return fmt.Errorf("opening database: %w", err)
 	}
@@ -32,38 +29,6 @@ func (c *AddCommand) Execute(args []string) error {
 	defer db.Close()
 
 	return c.executeWithStore(store)
-}
-
-// openStore resolves the config path and opens the SQLite store.
-func (c *AddCommand) openStore() (*storage.SQLiteStore, *sql.DB, error) {
-	configPath := c.globals.Config
-	if configPath == "" {
-		home, err := os.UserHomeDir()
-		if err != nil {
-			return nil, nil, err
-		}
-		configPath = home + "/.config/fabric/chronicle"
-	}
-
-	dbPath := configPath + "/chronicle.db"
-	db, err := sql.Open("sqlite3", dbPath+"?_journal_mode=WAL&_foreign_keys=on")
-	if err != nil {
-		return nil, nil, err
-	}
-
-	runner := storage.NewMigrationRunner(db)
-	if err := runner.Run(); err != nil {
-		db.Close()
-		return nil, nil, err
-	}
-
-	store, err := storage.NewSQLiteStore(db)
-	if err != nil {
-		db.Close()
-		return nil, nil, err
-	}
-
-	return store, db, nil
 }
 
 // executeWithStore runs the add logic against a provided store (used by tests).

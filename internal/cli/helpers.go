@@ -6,21 +6,33 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
 
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/runnerr0/chronicle/internal/config"
 	"github.com/runnerr0/chronicle/internal/storage"
 )
 
 const defaultRetentionDays = 30
 
-// defaultDBPath returns the default Chronicle database path.
+// defaultDBPath returns the default Chronicle database path using the config system.
 func defaultDBPath() string {
-	home, err := os.UserHomeDir()
+	cfg, err := config.LoadOrCreate()
 	if err != nil {
-		return "chronicle.db"
+		cfg = config.DefaultConfig()
 	}
-	return filepath.Join(home, ".chronicle", "chronicle.db")
+
+	storagePath := cfg.Storage.Path
+	if strings.HasPrefix(storagePath, "~") {
+		home, err := os.UserHomeDir()
+		if err != nil {
+			return "chronicle.db"
+		}
+		storagePath = filepath.Join(home, storagePath[1:])
+	}
+
+	return filepath.Join(storagePath, cfg.Storage.SQLiteFile)
 }
 
 // openDefaultStore opens the default Chronicle database, runs migrations,
