@@ -144,8 +144,8 @@ func (s *SQLiteStore) loadExclusions() error {
 	return rows.Err()
 }
 
-// isExcluded checks if a domain is blocked by exclusion rules.
-func (s *SQLiteStore) isExcluded(domain string) bool {
+// IsExcluded checks if a domain is blocked by exclusion rules.
+func (s *SQLiteStore) IsExcluded(domain string) bool {
 	for _, d := range s.domainExclusions {
 		if d == domain {
 			return true
@@ -215,7 +215,7 @@ func extractDomain(rawURL string) string {
 func (s *SQLiteStore) AddEvent(ctx context.Context, event *Event) error {
 	event.Domain = extractDomain(event.URL)
 
-	if s.isExcluded(event.Domain) {
+	if s.IsExcluded(event.Domain) {
 		return nil // silently skip
 	}
 
@@ -254,7 +254,7 @@ func (s *SQLiteStore) AddEvent(ctx context.Context, event *Event) error {
 func (s *SQLiteStore) AddEventWithContent(ctx context.Context, event *Event, body string) error {
 	event.Domain = extractDomain(event.URL)
 
-	if s.isExcluded(event.Domain) {
+	if s.IsExcluded(event.Domain) {
 		return nil
 	}
 
