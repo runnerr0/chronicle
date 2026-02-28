@@ -1,19 +1,14 @@
 package cli
 
-import (
-	"fmt"
-)
+import "fmt"
 
-func handleOpen(flags *Flags) (bool, error) {
-	if !flags.Open {
-		return false, nil
-	}
-
-	if flags.ID == "" {
-		return true, fmt.Errorf("--id is required for open command")
+// Execute implements the go-flags Commander interface for OpenCommand.
+func (c *OpenCommand) Execute(args []string) error {
+	if c.ID == "" {
+		return fmt.Errorf("--id is required for open command")
 	}
 
 	// TODO: Implement full open (P0-8)
-	fmt.Printf("Event %s not found.\n", flags.ID)
-	return true, nil
+	fmt.Printf("Event %s not found.\n", c.ID)
+	return nil
 }

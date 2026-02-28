@@ -1,19 +1,14 @@
 package cli
 
-import (
-	"fmt"
-)
+import "fmt"
 
-func handlePurge(flags *Flags) (bool, error) {
-	if !flags.Purge {
-		return false, nil
-	}
-
-	if !flags.All {
-		return true, fmt.Errorf("--all flag is required to confirm purge intent")
+// Execute implements the go-flags Commander interface for PurgeCommand.
+func (c *PurgeCommand) Execute(args []string) error {
+	if !c.All {
+		return fmt.Errorf("--all flag is required to confirm purge intent")
 	}
 
 	// TODO: Implement full purge (P0-10)
 	fmt.Println("Purging... (stub)")
-	return true, nil
+	return nil
 }
