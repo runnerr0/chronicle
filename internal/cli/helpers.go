@@ -20,7 +20,7 @@ func defaultDBPath() string {
 	if err != nil {
 		return "chronicle.db"
 	}
-	return filepath.Join(home, ".config", "fabric", "chronicle", "chronicle.db")
+	return filepath.Join(home, ".chronicle", "chronicle.db")
 }
 
 // openDefaultStore opens the default Chronicle database, runs migrations,
@@ -80,8 +80,10 @@ func parseDuration(s string) (time.Duration, error) {
 		return time.Duration(n) * 7 * 24 * time.Hour, nil
 	case 'm':
 		return time.Duration(n) * time.Minute, nil
+	case 's':
+		return time.Duration(n) * time.Second, nil
 	default:
-		return 0, fmt.Errorf("invalid duration: %q (use d, h, w, or m suffix)", s)
+		return 0, fmt.Errorf("invalid duration: %q (use d, h, w, m, or s suffix)", s)
 	}
 }
 
