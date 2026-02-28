@@ -1,0 +1,25 @@
+# Binary
+chronicle
+chronicle.exe
+
+# Go
+*.test
+*.out
+vendor/
+
+# Build
+dist/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Config (sensitive)
+*.env
