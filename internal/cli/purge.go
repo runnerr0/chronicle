@@ -45,30 +45,25 @@ func (c *PurgeCommand) Execute(args []string) error {
 	}
 
 	// Open or use injected DB
-	db := c.db
-	if db == nil {
-		dbPath, pathErr := defaultDBPath()
-		if pathErr != nil {
-			return fmt.Errorf("resolve db path: %w", pathErr)
-		}
+	var store *storage.SQLiteStore
+	var db *sql.DB
+	if c.db != nil {
+		db = c.db
 		var err error
-		db, err = sql.Open("sqlite3", dbPath)
+		store, err = storage.NewSQLiteStore(db)
 		if err != nil {
-			return fmt.Errorf("open database: %w", err)
+			return fmt.Errorf("init store: %w", err)
+		}
+		defer store.Close()
+	} else {
+		var err error
+		store, db, err = openDefaultStore()
+		if err != nil {
+			return err
 		}
 		defer db.Close()
-
-		runner := storage.NewMigrationRunner(db)
-		if err := runner.Run(); err != nil {
-			return fmt.Errorf("run migrations: %w", err)
-		}
+		defer store.Close()
 	}
-
-	store, err := storage.NewSQLiteStore(db)
-	if err != nil {
-		return fmt.Errorf("init store: %w", err)
-	}
-	defer store.Close()
 
 	ctx := context.Background()
 	if err := store.PurgeAll(ctx); err != nil {
@@ -89,11 +84,3 @@ func (c *PurgeCommand) Execute(args []string) error {
 	return nil
 }
 
-// defaultDBPath returns the default Chronicle database path.
-func defaultDBPath() (string, error) {
-	home, err := os.UserHomeDir()
-	if err != nil {
-		return "", err
-	}
-	return home + "/.chronicle/chronicle.db", nil
-}
