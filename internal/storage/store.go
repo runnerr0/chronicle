@@ -378,6 +378,16 @@ func (s *SQLiteStore) searchFTS(ctx context.Context, q SearchQuery) ([]Event, er
 		clauses = append(clauses, "e.ts <= ?")
 		args = append(args, q.Until.UTC().Format(time.RFC3339))
 	}
+	if q.Browser != "" {
+		clauses = append(clauses, "e.browser = ?")
+		args = append(args, q.Browser)
+	}
+	if q.HasBody {
+		clauses = append(clauses, "e.has_body = 1")
+	}
+	if q.HasEmbedding {
+		clauses = append(clauses, "e.has_embedding = 1")
+	}
 
 	where := ""
 	if len(clauses) > 0 {
@@ -416,6 +426,16 @@ func (s *SQLiteStore) searchFiltered(ctx context.Context, q SearchQuery) ([]Even
 	if !q.Until.IsZero() {
 		clauses = append(clauses, "ts <= ?")
 		args = append(args, q.Until.UTC().Format(time.RFC3339))
+	}
+	if q.Browser != "" {
+		clauses = append(clauses, "browser = ?")
+		args = append(args, q.Browser)
+	}
+	if q.HasBody {
+		clauses = append(clauses, "has_body = 1")
+	}
+	if q.HasEmbedding {
+		clauses = append(clauses, "has_embedding = 1")
 	}
 
 	where := ""

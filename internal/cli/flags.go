@@ -16,9 +16,11 @@ type StatusCommand struct {
 
 // SearchCommand — search captured events by keyword with filters.
 type SearchCommand struct {
+	Query        string   `short:"q" long:"query" description:"Search query terms"`
 	Since        string   `long:"since" description:"Only events newer than duration (e.g., 7d, 24h, 2w)" default:"30d"`
 	Until        string   `long:"until" description:"Only events older than duration"`
 	Domain       []string `long:"domain" description:"Filter by domain (repeatable)"`
+	Source       string   `long:"source" description:"Filter by source (extension/manual/import)"`
 	Browser      []string `long:"browser" description:"Filter by browser (repeatable)"`
 	HasBody      bool     `long:"has-body" description:"Only events with captured body content"`
 	HasEmbedding bool     `long:"has-embedding" description:"Only events with generated embeddings"`
