@@ -1,5 +1,7 @@
 package cli
 
+import "database/sql"
+
 // GlobalFlags holds flags available to all subcommands.
 type GlobalFlags struct {
 	Config  string `long:"config" description:"Path to config file" default:""`
@@ -80,4 +82,5 @@ type PurgeCommand struct {
 
 	globals *GlobalFlags
 	version string
+	db      *sql.DB // injectable for testing; nil means open default DB
 }
