@@ -25,13 +25,16 @@ type Content struct {
 
 // SearchQuery defines filters for searching events.
 type SearchQuery struct {
-	Query  string
-	Domain string
-	Source string
-	Since  time.Time
-	Until  time.Time
-	Limit  int
-	Offset int
+	Query        string
+	Domain       string
+	Source       string
+	Browser      string
+	Since        time.Time
+	Until        time.Time
+	Limit        int
+	Offset       int
+	HasBody      bool
+	HasEmbedding bool
 }
 
 // Stats holds aggregate statistics about the Chronicle database.

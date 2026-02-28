@@ -1,5 +1,11 @@
 package cli
 
+import (
+	"io"
+
+	"github.com/runnerr0/chronicle/internal/storage"
+)
+
 // GlobalFlags holds flags available to all subcommands.
 type GlobalFlags struct {
 	Config  string `long:"config" description:"Path to config file" default:""`
@@ -16,9 +22,11 @@ type StatusCommand struct {
 
 // SearchCommand — search captured events by keyword with filters.
 type SearchCommand struct {
+	Query        string   `short:"q" long:"query" description:"Search query terms"`
 	Since        string   `long:"since" description:"Only events newer than duration (e.g., 7d, 24h, 2w)" default:"30d"`
 	Until        string   `long:"until" description:"Only events older than duration"`
 	Domain       []string `long:"domain" description:"Filter by domain (repeatable)"`
+	Source       string   `long:"source" description:"Filter by source (extension/manual/import)"`
 	Browser      []string `long:"browser" description:"Filter by browser (repeatable)"`
 	HasBody      bool     `long:"has-body" description:"Only events with captured body content"`
 	HasEmbedding bool     `long:"has-embedding" description:"Only events with generated embeddings"`
@@ -65,12 +73,16 @@ type IngestCommand struct {
 
 // PruneCommand — apply TTL pruning to remove old events.
 type PruneCommand struct {
-	Now       bool   `long:"now" description:"Prune immediately"`
-	OlderThan string `long:"older-than" description:"Override retention period (e.g., 30d)"`
+	OlderThan string `long:"older-than" description:"Override retention period (e.g., 30d, 7d, 24h)"`
 	DryRun    bool   `long:"dry-run" description:"Show what would be pruned without deleting"`
+	Force     bool   `long:"force" description:"Skip confirmation prompt"`
 
 	globals *GlobalFlags
 	version string
+
+	// Testing hooks (not exposed via CLI flags)
+	store storage.Store
+	stdin io.Reader
 }
 
 // PurgeCommand — delete ALL Chronicle data with safety confirmation.
